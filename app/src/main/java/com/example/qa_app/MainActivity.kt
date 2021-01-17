@@ -60,7 +60,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     val answerBody = temp["body"] ?: ""
                     val answerName = temp["name"] ?: ""
                     val answerUid = temp["uid"] ?: ""
-                    val answer = Answer(answerBody, answerName, answerUid, key)
+                    val questionUid = temp["uid"] ?: ""
+                    val answer = Answer(answerBody, answerName, answerUid, questionUid, key)
                     answerArrayList.add(answer)
                 }
             }
@@ -87,7 +88,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             val answerBody = temp["body"] ?: ""
                             val answerName = temp["name"] ?: ""
                             val answerUid = temp["uid"] ?: ""
-                            val answer = Answer(answerBody, answerName, answerUid, key)
+                            val questionUid = temp["uid"] ?: ""
+                            val answer = Answer(answerBody, answerName, answerUid, questionUid, key)
                             question.answers.add(answer)
                         }
                     }
@@ -189,7 +191,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     // - - - ↓ アクションバーを表示 ↓- - -
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu this adds items to the action bar if it is present.
+        // menuをInflateし、アクションバーを表示
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }

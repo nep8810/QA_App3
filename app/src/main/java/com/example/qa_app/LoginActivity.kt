@@ -38,7 +38,7 @@ class LoginActivity : AppCompatActivity() {
         // データベースへのリファレンスを取得
         mDataBaseReference = FirebaseDatabase.getInstance().reference
 
-        // FirebaseAuthのオブジェクトを取得する
+        // FirebaseAuthのインスタンスを取得する
         mAuth = FirebaseAuth.getInstance()
 
         // アカウント作成処理のリスナー
@@ -68,7 +68,7 @@ class LoginActivity : AppCompatActivity() {
             if (task.isSuccessful) {
                 // 成功した場合
                 val user = mAuth.currentUser
-                val userRef = mDataBaseReference.child(UsersPATH).child(user!!.uid) //uid=ユーザID
+                val userRef = mDataBaseReference.child(UsersPATH).child(user!!.uid) // uid=ユーザID
 
                 // アカウント新規作成の時は表示名をFirebaseに保存する
                 // Firebaseは、データをKeyとValueの組み合わせで保存する
