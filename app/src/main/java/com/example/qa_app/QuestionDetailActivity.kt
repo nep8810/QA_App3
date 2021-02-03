@@ -28,6 +28,7 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mQuestion: Question
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
+    private lateinit var mQuestionArrayList: ArrayList<Question>
 
     // お気に入りボタンタップ時にフラグを立て、Firebaseに保存する
     private  var mIsFavorite = false

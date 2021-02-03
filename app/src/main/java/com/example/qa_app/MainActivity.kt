@@ -20,6 +20,7 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import android.util.Base64  //追加する
+import android.util.Log
 import android.widget.ListView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -69,6 +70,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val question = Question(title, body, name, uid, dataSnapshot.key ?: "",
                 mGenre, bytes, answerArrayList)
             mQuestionArrayList.add(question)
+            // notifyDataSetChanged()はデータセットが変更されたことを、登録されているすべてのobserverに通知する
             mAdapter.notifyDataSetChanged()
         }
 
@@ -228,19 +230,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else if (id == R.id.nav_compter) {
             mToolbar.title = "コンピューター"
             mGenre = 4
+        } else if (id == R.id.nav_favorite) {
+            mToolbar.title = "お気に入り"
+            mGenre = 5
         }
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         drawer.closeDrawer(GravityCompat.START)
 
         // - - - ↓ 質問一覧画面に付随した記述 ↓- - -
+        // ドロワーでジャンルが選択された時に、Firebaseに対してそのジャンルの質問のデータの変化を受け取るように、ChildEventListenerを設定
         // 質問のリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
         mQuestionArrayList.clear()
         mAdapter.setQuestionArrayList(mQuestionArrayList)
         mListView.adapter = mAdapter
 
         // 選択したジャンルにリスナーを登録する
-        if (mGenreRef != null) {
+        if (mGenre == 5){
+            val intent = Intent(applicationContext, FavoriteListActivity::class.java)
+            startActivity(intent)
+
+        } else if (mGenreRef != null && mGenre !== 5) {
+            // Firebaseデータベース参照のremoveEventListenerメソッドを呼び出し、リスナーをデタッチする
             mGenreRef!!.removeEventListener(mEventListener)
         }
         mGenreRef = mDatabaseReference.child(ContentsPATH).child(mGenre.toString())

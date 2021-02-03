@@ -68,7 +68,8 @@ class LoginActivity : AppCompatActivity() {
             if (task.isSuccessful) {
                 // 成功した場合
                 val user = mAuth.currentUser
-                val userRef = mDataBaseReference.child(UsersPATH).child(user!!.uid) // uid=ユーザID
+                // ログインしているユーザーのID：user!!.uid
+                val userRef = mDataBaseReference.child(UsersPATH).child(user!!.uid)
 
                 // アカウント新規作成の時は表示名をFirebaseに保存する
                 // Firebaseは、データをKeyとValueの組み合わせで保存する
