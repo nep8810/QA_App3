@@ -12,7 +12,6 @@ import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import android.support.design.widget.Snackbar
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DataSnapshot
@@ -20,7 +19,6 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import android.util.Base64  //追加する
-import android.util.Log
 import android.widget.ListView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -248,6 +246,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // 選択したジャンルにリスナーを登録する
         if (mGenre == 5){
             val intent = Intent(applicationContext, FavoriteListActivity::class.java)
+            intent.putExtra("question", mQuestionArrayList)
             startActivity(intent)
 
         } else if (mGenreRef != null && mGenre !== 5) {

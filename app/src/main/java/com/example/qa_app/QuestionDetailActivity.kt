@@ -135,10 +135,11 @@ class QuestionDetailActivity : AppCompatActivity() {
             // 参照するものをdataBaseReference.child()内に記述
             val favoriteRef = dataBaseReference.child(UsersPATH).child(FavoritesPATH).child(user!!.uid).child(mQuestion.questionUid)
             // HashMapクラスはkeyとvalueの組み合わせで要素を保管する
-            val data = HashMap<String, String>()
+            val data = HashMap<String, Any>()
 
             // UIDを取得する
             data["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
+            data["genre"] = mQuestion.genre
 
             val questionUid = dataBaseReference.key ?: ""
 
@@ -167,7 +168,7 @@ class QuestionDetailActivity : AppCompatActivity() {
                 mIsFavorite = true
 
                 // Firebaseに書き込み(push():ノード内に投稿を作成、setValue():完了コールバック )
-                favoriteRef.push().setValue(data,questionUid)
+                favoriteRef.setValue(data,questionUid)
                 Snackbar.make(v, "お気に入りに登録しました", Snackbar.LENGTH_LONG).show()
                 FB.setText(R.string.label2)
             }
