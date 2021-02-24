@@ -146,7 +146,7 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                         val genre = map["genre"] ?: ""
                         val questionUid = map["uid"] ?: ""
 
-                        val QuestionDetailRef = mDatabaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid)
+                        val QuestionDetailRef = mDatabaseReference.child(ContentsPATH).child(genre.toString()).child(dataSnapshot.key ?: "")
                         val mQuestionDetailEventListener = QuestionDetailRef.addChildEventListener(object : ChildEventListener {
                             override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
                                 val map = dataSnapshot.value as Map<String, String>
@@ -270,9 +270,6 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                     }
                 })
 
-        // 渡ってきたQuestionのオブジェクトを保持する
-        mQuestionArrayList = intent.getSerializableExtra("question") as ArrayList<Question>
-
         // タイトルの設定
         title = "お気に入り一覧"
 
@@ -281,9 +278,6 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
         mFAdapter = QuestionsListAdapter(this)
         mQuestionArrayList = ArrayList<Question>()
         mFAdapter.notifyDataSetChanged()
-
-        // addChildEventListenerメソッドを使って、Firebaseに対してそのお気に入り一覧の質問のデータの変化を受け取る
-        favoriteRef!!.addChildEventListener(mfavoriteEventListener)
 
         // - - - ↑ お気に入り一覧画面に付随した記述 ↑- - -
 

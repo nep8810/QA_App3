@@ -246,7 +246,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // 選択したジャンルにリスナーを登録する
         if (mGenre == 5){
             val intent = Intent(applicationContext, FavoriteListActivity::class.java)
-            intent.putExtra("question", mQuestionArrayList)
             startActivity(intent)
 
         } else if (mGenreRef != null && mGenre !== 5) {
