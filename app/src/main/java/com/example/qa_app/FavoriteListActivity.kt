@@ -12,6 +12,8 @@ import android.util.Base64
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Button
 import android.widget.ListView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -139,7 +141,7 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                 val favoriteRef = mDatabaseReference.child(UsersPATH).child(FavoritesPATH).child(user!!.uid)
 
                 // イベントリスナー：お気に入りリストの取得
-                val mfavoriteEventListener = favoriteRef.addChildEventListener(object : ChildEventListener {
+                favoriteRef.addChildEventListener(object : ChildEventListener {
 
                     override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
                         val map = dataSnapshot.value as Map<String, Any>
@@ -147,8 +149,8 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                         val questionUid = map["uid"] ?: ""
 
                         val QuestionDetailRef = mDatabaseReference.child(ContentsPATH).child(genre.toString()).child(dataSnapshot.key ?: "")
-                        val mQuestionDetailEventListener = QuestionDetailRef.addChildEventListener(object : ChildEventListener {
-                            override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
+                        QuestionDetailRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(dataSnapshot: DataSnapshot) {
                                 val map = dataSnapshot.value as Map<String, String>
                                 val title = map["title"] ?: ""
                                 val body = map["body"] ?: ""
@@ -181,52 +183,38 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                                     title, body, name, uid, questionUid.toString(),
                                     genre, bytes, answerArrayList
                                 )
-                                mQuestionArrayList.add(question)
-                                // notifyDataSetChanged()はデータセットが変更されたことを、登録されているすべてのobserverに通知する
-                                mFAdapter.notifyDataSetChanged()
-                                Log.d("mfavoriteEventListener", "実行完了")  // 《イベントリスナーの確認》
-                            }
+                                    mQuestionArrayList.add(question)
+                                    // notifyDataSetChanged()はデータセットが変更されたことを、登録されているすべてのobserverに通知する
+                                    mFAdapter.notifyDataSetChanged()
+                                    Log.d("mfavoriteEventListener", "実行完了")  // 《イベントリスナーの確認》
 
-                            override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {
-                                val map = dataSnapshot.value as Map<String, String>
-
-                                // 変更があったQuestionを探す
-                                for (question in mQuestionArrayList) {
-                                    if (dataSnapshot.key.equals(question.questionUid)) {
-                                        // このアプリで変更がある可能性があるのは回答(Answer)のみ
-                                        question.answers.clear()
-                                        val answerMap = map["answers"] as Map<String, String>?
-                                        if (answerMap != null) {
-                                            for (key in answerMap.keys) {
-                                                val temp = answerMap[key] as Map<String, String>
-                                                val answerBody = temp["body"] ?: ""
-                                                val answerName = temp["name"] ?: ""
-                                                val answerUid = temp["uid"] ?: ""
-                                                val questionUid = temp["uid"] ?: ""
-                                                val answer = Answer(answerBody, answerName, answerUid, questionUid, key)
-                                                question.answers.add(answer)
+                                    for (question in mQuestionArrayList) {
+                                        if (dataSnapshot.key.equals(question.questionUid)) {
+                                            // このアプリで変更がある可能性があるのは回答(Answer)のみ
+                                            question.answers.clear()
+                                            val answerMap = map["answers"] as Map<String, String>?
+                                            if (answerMap != null) {
+                                                for (key in answerMap.keys) {
+                                                    val temp = answerMap[key] as Map<String, String>
+                                                    val answerBody = temp["body"] ?: ""
+                                                    val answerName = temp["name"] ?: ""
+                                                    val answerUid = temp["uid"] ?: ""
+                                                    val questionUid = temp["uid"] ?: ""
+                                                    val answer = Answer(answerBody, answerName, answerUid, questionUid, key)
+                                                    question.answers.add(answer)
+                                                }
                                             }
-                                        }
 
-                                        mFAdapter.notifyDataSetChanged()
+                                            mFAdapter.notifyDataSetChanged()
+                                        }
                                     }
                                 }
-                            }
-
-                            override fun onChildRemoved(p0: DataSnapshot) {
-
-                            }
-
-                            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-
-                            }
 
                             override fun onCancelled(p0: DatabaseError) {
 
                             }
                         })
-                        // addChildEventListenerメソッドを使って、Firebaseに対して詳細な質問データの変化を受け取る
-                        QuestionDetailRef!!.addChildEventListener(mQuestionDetailEventListener)
+
                     }
 
                     // onChildChangedメソッドで要素に変化があった場合の設定(今回は質問に対して回答が投稿された時)
@@ -270,36 +258,45 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                     }
                 })
 
-        // タイトルの設定
-        title = "お気に入り一覧"
+                // タイトルの設定
+                title = "お気に入り一覧"
 
-        // ListViewの準備
-        mListView = findViewById(R.id.listView)
-        mFAdapter = QuestionsListAdapter(this)
-        mQuestionArrayList = ArrayList<Question>()
-        mFAdapter.notifyDataSetChanged()
+                // ListViewの準備
+                mListView = findViewById(R.id.listView)
+                mFAdapter = QuestionsListAdapter(this)
+                mQuestionArrayList = ArrayList<Question>()
 
-        // - - - ↑ お気に入り一覧画面に付随した記述 ↑- - -
+                mFAdapter.setQuestionArrayList(mQuestionArrayList)
+                mListView.adapter = mFAdapter
+                mFAdapter.notifyDataSetChanged()
 
-        // - - - ↓ お気に入り一覧画面でリストをタップした時に質問詳細画面に遷移 ↓ - - -
-        // ListViewのsetOnItemClickListenerメソッドでリスナーを登録
-        mListView.setOnItemClickListener { parent, view, position, id ->
-            // Questionのインスタンスを渡して質問詳細画面を起動する
-            val intent = Intent(applicationContext, QuestionDetailActivity::class.java)
-            intent.putExtra("question", mQuestionArrayList[position])
-            startActivity(intent)
-        }
-        // - - - ↑ お気に入り一覧画面でリストをタップした時に質問詳細画面に遷移 ↑ - - -
-    }
+                // - - - ↑ お気に入り一覧画面に付随した記述 ↑- - -
+
+
+                // - - - ↓ お気に入り一覧画面でリストをタップした時に質問詳細画面に遷移 ↓ - - -
+                // ListViewのsetOnItemClickListenerメソッドでリスナーを登録
+                mListView.setOnItemClickListener { parent, view, position, id ->
+                    // Questionのインスタンスを渡して質問詳細画面を起動する
+                    val intent = Intent(applicationContext, QuestionDetailActivity::class.java)
+                    intent.putExtra("question", mQuestionArrayList[position])
+                    startActivity(intent)
+                }
+                // - - - ↑ お気に入り一覧画面でリストをタップした時に質問詳細画面に遷移 ↑ - - -
+            }
 
     // - - - ↓ 他のアクティビティから戻ってきたときの処理 ↓ - - -
     override fun onResume() {
         super.onResume()
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
 
-        // 5:お気に入り一覧を既定の選択とする
-        if(mGenre == 5) {
-            onNavigationItemSelected(navigationView.menu.getItem(5))
+        // 1:趣味を既定の選択とする
+        if(mGenre == 0) {
+            onNavigationItemSelected(navigationView.menu.getItem(0))
+        }
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            navigationView.menu.findItem(R.id.nav_favorite).setVisible(false)
         }
     }
     // - - - ↑ 他のアクティビティから戻ってきたときの処理 ↑ - - -

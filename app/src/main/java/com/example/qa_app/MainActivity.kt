@@ -186,6 +186,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if(mGenre == 0) {
             onNavigationItemSelected(navigationView.menu.getItem(0))
         }
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            navigationView.menu.findItem(R.id.nav_favorite).setVisible(false)
+        }
     }
     // - - - ↑ 他のアクティビティから戻ってきたときの処理 ↑ - - -
 

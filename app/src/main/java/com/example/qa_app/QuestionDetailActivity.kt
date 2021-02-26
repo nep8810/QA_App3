@@ -113,7 +113,6 @@ class QuestionDetailActivity : AppCompatActivity() {
 
 
         // - - - ↓ ログイン時にお気に入りボタンを表示 ↓- - -
-
         // findViewById()→setContentView()の順にしないとViewが用意されていないのにfindViewすることになるのでnullが返る
         val FB = this.findViewById<Button>(R.id.favorite_button)
         // ログイン済みのユーザーを取得する
