@@ -289,10 +289,6 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
         super.onResume()
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
 
-        // 1:趣味を既定の選択とする
-        if(mGenre == 0) {
-            onNavigationItemSelected(navigationView.menu.getItem(0))
-        }
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
