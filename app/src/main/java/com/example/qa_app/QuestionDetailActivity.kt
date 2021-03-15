@@ -186,8 +186,45 @@ class QuestionDetailActivity : AppCompatActivity() {
             // ログインしていれば「お気に入りボタン」を表示する
             FB.setVisibility(View.VISIBLE)
         }
+
+        // Firebaseを参照
+        val dataBaseReference = FirebaseDatabase.getInstance().reference
+        // 参照するものをdataBaseReference.child()内に記述
+        val favoriteRef = dataBaseReference.child(UsersPATH).child(FavoritesPATH).child(user!!.uid)
+
+        favoriteRef.addListenerForSingleValueEvent(object : ValueEventListener {
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val map = dataSnapshot.value as? Map<String, String>
+                val questionUid = map?.get(dataSnapshot.key ?: "")
+                val uid = map?.get("uid")
+
+                Log.i("パターン1", "dataSnapshot.key = " + dataSnapshot.key);
+                Log.i("パターン2", "mQuestion.questionUid = " + mQuestion.questionUid);
+                Log.i("パターン3", "dataSnapshot.key.equals(mQuestion.questionUid) = " + dataSnapshot.key.equals(mQuestion.questionUid));
+                Log.i("パターン4", "questionUid = " + questionUid);
+                Log.i("パターン5", "uid = " + uid);
+                Log.i("パターン6", "questionUid.equals(uid) = " + questionUid.equals(uid));
+
+                if (dataSnapshot.key.equals(mQuestion.questionUid)) {
+                    FB.setText(R.string.label2)
+                    Log.d("お気に入りif側","実行完了")  // 《イベントリスナーの確認》
+
+                }else if(questionUid.equals(uid)){
+                    FB.setText(R.string.label2)
+                    Log.d("お気に入りelse if側","実行完了")  // 《イベントリスナーの確認》
+
+                }else{
+                    FB.setText(R.string.label2)
+                    Log.d("お気に入りelse側","実行完了")  // 《イベントリスナーの確認》
+                }
+            }
+            //読み込み失敗(中止された時の処理はonCancelledメソッドを使う)
+            override fun onCancelled(firebaseError: DatabaseError) {}
+        })
+
     }
-    // - - - ↑ 他のアクティビティから戻ってきたときの処理 ↑ - - -
+
 }
 
 
