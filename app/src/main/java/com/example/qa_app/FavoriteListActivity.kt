@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
 import android.util.Base64
 import android.util.Log
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -366,6 +367,12 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
 
         return true
     }
+
     // - - - ↑ ナビゲーションドロワーをタップした時の処理 ↑ - - -
+
+    override fun onBackPressed() {
+        // バックキーの無効化
+        moveTaskToBack (true)
+    }
 
 }

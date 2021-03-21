@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -213,6 +214,7 @@ class QuestionDetailActivity : AppCompatActivity() {
                             Log.d("お気に入りif側", "実行完了")  // 《イベントリスナーの確認》
 
                         } else {
+                            mIsFavorite = true
                             FB.setText(R.string.label2)
                             Log.d("お気に入りelse側", "実行完了")  // 《イベントリスナーの確認》
                         }
