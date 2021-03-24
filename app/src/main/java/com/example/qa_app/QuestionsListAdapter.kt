@@ -3,6 +3,7 @@ package com.example.qa_app
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,7 @@ class QuestionsListAdapter(context: Context) : BaseAdapter() {
     }
 
     override fun getCount(): Int {
+        Log.i("要素数の確認)", "mQuestionArrayList.size = " + mQuestionArrayList.size)
         return mQuestionArrayList.size
     }
 
@@ -34,6 +36,7 @@ class QuestionsListAdapter(context: Context) : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var convertView = convertView
+
 
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(R.layout.list_questions, parent, false)

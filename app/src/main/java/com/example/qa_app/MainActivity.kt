@@ -19,6 +19,7 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import android.util.Base64  //追加する
+import android.util.Log
 import android.widget.ListView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -35,8 +36,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var mGenreRef: DatabaseReference? = null
 
     // データに追加・変化があった時に受け取るChildEventListenerを作成
-    // onChildAddedメソッドは、要素が追加された時(今回は質問が追加された時)に呼ばれる
     private val mEventListener = object : ChildEventListener {
+        // onChildAddedメソッドは、要素が追加された時(今回は質問が追加された時)に呼ばれる
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
             val map = dataSnapshot.value as Map<String, String>
             val title = map["title"] ?: ""
@@ -59,8 +60,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     val answerBody = temp["body"] ?: ""
                     val answerName = temp["name"] ?: ""
                     val answerUid = temp["uid"] ?: ""
-                    val questionUid = temp["uid"] ?: ""
-                    val answer = Answer(answerBody, answerName, answerUid, questionUid, key)
+
+                    val answer = Answer(answerBody, answerName, answerUid, key)
                     answerArrayList.add(answer)
                 }
             }
@@ -68,6 +69,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val question = Question(title, body, name, uid, dataSnapshot.key ?: "",
                 mGenre, bytes, answerArrayList)
             mQuestionArrayList.add(question)
+            Log.i("要素数の確認(onChildAdded)", "mQuestionArrayList = " + mQuestionArrayList)
             // notifyDataSetChanged()はデータセットが変更されたことを、登録されているすべてのobserverに通知する
             mAdapter.notifyDataSetChanged()
         }
@@ -88,8 +90,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             val answerBody = temp["body"] ?: ""
                             val answerName = temp["name"] ?: ""
                             val answerUid = temp["uid"] ?: ""
-                            val questionUid = temp["uid"] ?: ""
-                            val answer = Answer(answerBody, answerName, answerUid, questionUid, key)
+
+                            val answer = Answer(answerBody, answerName, answerUid, key)
                             question.answers.add(answer)
                         }
                     }
@@ -162,6 +164,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mListView = findViewById(R.id.listView)
         mAdapter = QuestionsListAdapter(this)
         mQuestionArrayList = ArrayList<Question>()
+        Log.i("要素数の確認(ListView準備段階)", "mQuestionArrayList = " + mQuestionArrayList)
+        println(mQuestionArrayList)
         mAdapter.notifyDataSetChanged()
         // - - - ↑ 質問一覧画面に付随した記述 ↑- - -
 
@@ -193,6 +197,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }else{
             navigationView.menu.findItem(R.id.nav_favorite).setVisible(true)
         }
+        Log.i("要素数の確認(onResume)", "mQuestionArrayList = " + mQuestionArrayList)
+        Log.i("要素数の確認(onResume)", "mQuestionArrayList.size = " + mQuestionArrayList.size)
+        println(mQuestionArrayList)
     }
     // - - - ↑ 他のアクティビティから戻ってきたときの処理 ↑ - - -
 
@@ -248,6 +255,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // 質問のリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
         mQuestionArrayList.clear()
         mAdapter.setQuestionArrayList(mQuestionArrayList)
+        Log.i("要素数の確認(ドロワーからのジャンル選択時)", "mQuestionArrayList = " + mQuestionArrayList)
+        println(mQuestionArrayList)
         mListView.adapter = mAdapter
 
         // 選択したジャンルにリスナーを登録する

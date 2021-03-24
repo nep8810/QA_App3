@@ -60,8 +60,8 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                             val answerBody = temp["body"] ?: ""
                             val answerName = temp["name"] ?: ""
                             val answerUid = temp["uid"] ?: ""
-                            val questionUid = temp["uid"] ?: ""
-                            val answer = Answer(answerBody, answerName, answerUid, questionUid, key)
+
+                            val answer = Answer(answerBody, answerName, answerUid, key)
                             answerArrayList.add(answer)
                         }
                     }
@@ -90,8 +90,8 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                                     val answerBody = temp["body"] ?: ""
                                     val answerName = temp["name"] ?: ""
                                     val answerUid = temp["uid"] ?: ""
-                                    val questionUid = temp["uid"] ?: ""
-                                    val answer = Answer(answerBody, answerName, answerUid, questionUid, key)
+
+                                    val answer = Answer(answerBody, answerName, answerUid, key)
                                     question.answers.add(answer)
                                 }
                             }
@@ -173,9 +173,9 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                                         val answerBody = temp["body"] ?: ""
                                         val answerName = temp["name"] ?: ""
                                         val answerUid = temp["uid"] ?: ""
-                                        val questionUid = temp["uid"] ?: ""
+
                                         val answer =
-                                            Answer(answerBody, answerName, answerUid, questionUid, key)
+                                            Answer(answerBody, answerName, answerUid, key)
                                         answerArrayList.add(answer)
                                     }
                                 }
@@ -200,8 +200,8 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                                                     val answerBody = temp["body"] ?: ""
                                                     val answerName = temp["name"] ?: ""
                                                     val answerUid = temp["uid"] ?: ""
-                                                    val questionUid = temp["uid"] ?: ""
-                                                    val answer = Answer(answerBody, answerName, answerUid, questionUid, key)
+
+                                                    val answer = Answer(answerBody, answerName, answerUid, key)
                                                     question.answers.add(answer)
                                                 }
                                             }
@@ -234,8 +234,8 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                                         val answerBody = temp["body"] ?: ""
                                         val answerName = temp["name"] ?: ""
                                         val answerUid = temp["uid"] ?: ""
-                                        val questionUid = temp["uid"] ?: ""
-                                        val answer = Answer(answerBody, answerName, answerUid, questionUid, key)
+
+                                        val answer = Answer(answerBody, answerName, answerUid, key)
                                         question.answers.add(answer)
                                     }
                                 }
@@ -289,7 +289,6 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
     override fun onResume() {
         super.onResume()
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
-
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {

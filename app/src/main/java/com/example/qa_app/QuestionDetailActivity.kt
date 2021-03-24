@@ -41,7 +41,6 @@ class QuestionDetailActivity : AppCompatActivity() {
             val map = dataSnapshot.value as Map<String, String>
 
             val answerUid = dataSnapshot.key ?: ""
-            val questionUid = dataSnapshot.key ?: ""
 
             for (answer in mQuestion.answers) {
                 // 同じAnswerUidのものが存在しているときは何もしない
@@ -54,7 +53,7 @@ class QuestionDetailActivity : AppCompatActivity() {
             val name = map["name"] ?: ""
             val uid = map["uid"] ?: ""
 
-            val answer = Answer(body, name, uid, answerUid, questionUid)
+            val answer = Answer(body, name, uid, answerUid)
             mQuestion.answers.add(answer)
             mAdapter.notifyDataSetChanged()
         }
@@ -141,7 +140,7 @@ class QuestionDetailActivity : AppCompatActivity() {
             data["uid"] = mQuestion.questionUid
             data["genre"] = mQuestion.genre
 
-            val questionUid = dataBaseReference.key ?: ""
+            // val questionUid = dataBaseReference.key ?: ""
 
             val FB = this.findViewById<Button>(R.id.favorite_button)
 
@@ -168,7 +167,8 @@ class QuestionDetailActivity : AppCompatActivity() {
                 mIsFavorite = true
 
                 // Firebaseに書き込み(push():ノード内に投稿を作成、setValue():完了コールバック )
-                favoriteRef.setValue(data,questionUid)
+                favoriteRef.setValue(data)
+                Log.i("QDA dataの確認)", "data = " + data)
                 Snackbar.make(v, "お気に入りに登録しました", Snackbar.LENGTH_LONG).show()
                 FB.setText(R.string.label2)
             }

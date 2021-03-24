@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 
@@ -79,6 +80,7 @@ class AnswerSendActivity : AppCompatActivity(), View.OnClickListener, DatabaseRe
             return
         }
         data["body"] = answer
+        Log.i("パターン1", "HashMap<String, String>() = " + HashMap<String, String>())
 
         progressBar.visibility = View.VISIBLE
         // Firebaseに書き込み
