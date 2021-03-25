@@ -270,7 +270,6 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                 mFAdapter.setQuestionArrayList(mQuestionArrayList)
                 mListView.adapter = mFAdapter
                 mFAdapter.notifyDataSetChanged()
-
                 // - - - ↑ お気に入り一覧画面に付随した記述 ↑- - -
 
 
@@ -294,6 +293,130 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
         if (user == null) {
             navigationView.menu.findItem(R.id.nav_favorite).setVisible(false)
         }
+
+        mQuestionArrayList.clear()
+
+        mDatabaseReference = FirebaseDatabase.getInstance().reference     // DatabaseReferenceを組み立てる
+        val favoriteRef = mDatabaseReference.child(UsersPATH).child(FavoritesPATH).child(user!!.uid)
+
+        // イベントリスナー：お気に入りリストの取得
+        favoriteRef.addChildEventListener(object : ChildEventListener {
+
+            override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
+                val map = dataSnapshot.value as Map<String, Any>
+                val genre = map["genre"] ?: ""
+                val questionUid = map["uid"] ?: ""
+
+                val QuestionDetailRef = mDatabaseReference.child(ContentsPATH).child(genre.toString()).child(dataSnapshot.key ?: "")
+                QuestionDetailRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        val map = dataSnapshot.value as Map<String, String>
+                        val title = map["title"] ?: ""
+                        val body = map["body"] ?: ""
+                        val name = map["name"] ?: ""
+                        val uid = map["uid"] ?: ""
+                        val imageString = map["image"] ?: ""
+                        val bytes =
+                            if (imageString.isNotEmpty()) {
+                                Base64.decode(imageString, Base64.DEFAULT)
+                            } else {
+                                byteArrayOf()
+                            }
+
+                        val answerArrayList = ArrayList<Answer>()
+                        val answerMap = map["answers"] as Map<String, String>?
+                        if (answerMap != null) {
+                            for (key in answerMap.keys) {
+                                val temp = answerMap[key] as Map<String, String>
+                                val answerBody = temp["body"] ?: ""
+                                val answerName = temp["name"] ?: ""
+                                val answerUid = temp["uid"] ?: ""
+
+                                val answer =
+                                    Answer(answerBody, answerName, answerUid, key)
+                                answerArrayList.add(answer)
+                            }
+                        }
+
+                        val question = Question(
+                            title, body, name, uid, questionUid.toString(),
+                            genre, bytes, answerArrayList
+                        )
+                        mQuestionArrayList.add(question)
+                        // notifyDataSetChanged()はデータセットが変更されたことを、登録されているすべてのobserverに通知する
+                        mFAdapter.notifyDataSetChanged()
+                        Log.d("mfavoriteEventListener", "実行完了")  // 《イベントリスナーの確認》
+
+                        for (question in mQuestionArrayList) {
+                            if (dataSnapshot.key.equals(question.questionUid)) {
+                                // このアプリで変更がある可能性があるのは回答(Answer)のみ
+                                question.answers.clear()
+                                val answerMap = map["answers"] as Map<String, String>?
+                                if (answerMap != null) {
+                                    for (key in answerMap.keys) {
+                                        val temp = answerMap[key] as Map<String, String>
+                                        val answerBody = temp["body"] ?: ""
+                                        val answerName = temp["name"] ?: ""
+                                        val answerUid = temp["uid"] ?: ""
+
+                                        val answer = Answer(answerBody, answerName, answerUid, key)
+                                        question.answers.add(answer)
+                                    }
+                                }
+
+                                mFAdapter.notifyDataSetChanged()
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(p0: DatabaseError) {
+
+                    }
+                })
+
+            }
+
+            // onChildChangedメソッドで要素に変化があった場合の設定(今回は質問に対して回答が投稿された時)
+            override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {
+                val map = dataSnapshot.value as Map<String, String>
+
+                // 変更があったQuestionを探す
+                for (question in mQuestionArrayList) {
+                    if (dataSnapshot.key.equals(question.questionUid)) {
+                        // このアプリで変更がある可能性があるのは回答(Answer)のみ
+                        question.answers.clear()
+                        val answerMap = map["answers"] as Map<String, String>?
+                        if (answerMap != null) {
+                            for (key in answerMap.keys) {
+                                val temp = answerMap[key] as Map<String, String>
+                                val answerBody = temp["body"] ?: ""
+                                val answerName = temp["name"] ?: ""
+                                val answerUid = temp["uid"] ?: ""
+
+                                val answer = Answer(answerBody, answerName, answerUid, key)
+                                question.answers.add(answer)
+                            }
+                        }
+
+                        mFAdapter.notifyDataSetChanged()
+                    }
+                }
+
+            }
+
+            override fun onChildRemoved(p0: DataSnapshot) {
+
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+
     }
     // - - - ↑ 他のアクティビティから戻ってきたときの処理 ↑ - - -
 

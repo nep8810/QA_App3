@@ -128,9 +128,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             // ジャンルを選択していない場合（mGenre == 0）はエラーを表示するだけ
             if (mGenre == 0) {
                 Snackbar.make(view, "ジャンルを選択して下さい", Snackbar.LENGTH_LONG).show()
-            } else {
-
             }
+
             // ログイン済みのユーザーを取得する
             val user = FirebaseAuth.getInstance().currentUser
 
