@@ -133,132 +133,6 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                 navigationView.setNavigationItemSelectedListener(this)
 
                 // - - - ↓ お気に入り一覧画面に付随した記述 ↓- - -
-                // Firebase参照
-                mDatabaseReference = FirebaseDatabase.getInstance().reference     // DatabaseReferenceを組み立てる
-                // ログイン済みのユーザーを取得する
-                val user = FirebaseAuth.getInstance().currentUser
-
-                // お気に入り一覧をFirebaseから取得
-                val favoriteRef = mDatabaseReference.child(UsersPATH).child(FavoritesPATH).child(user!!.uid)
-
-                // イベントリスナー：お気に入りリストの取得
-                favoriteRef.addChildEventListener(object : ChildEventListener {
-
-                    override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
-                        val map = dataSnapshot.value as Map<String, Any>
-                        val genre = map["genre"] ?: ""
-                        val questionUid = map["uid"] ?: ""
-
-                        val QuestionDetailRef = mDatabaseReference.child(ContentsPATH).child(genre.toString()).child(dataSnapshot.key ?: "")
-                        QuestionDetailRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                val map = dataSnapshot.value as Map<String, String>
-                                val title = map["title"] ?: ""
-                                val body = map["body"] ?: ""
-                                val name = map["name"] ?: ""
-                                val uid = map["uid"] ?: ""
-                                val imageString = map["image"] ?: ""
-                                val bytes =
-                                    if (imageString.isNotEmpty()) {
-                                        Base64.decode(imageString, Base64.DEFAULT)
-                                    } else {
-                                        byteArrayOf()
-                                    }
-
-                                val answerArrayList = ArrayList<Answer>()
-                                val answerMap = map["answers"] as Map<String, String>?
-                                if (answerMap != null) {
-                                    for (key in answerMap.keys) {
-                                        val temp = answerMap[key] as Map<String, String>
-                                        val answerBody = temp["body"] ?: ""
-                                        val answerName = temp["name"] ?: ""
-                                        val answerUid = temp["uid"] ?: ""
-
-                                        val answer =
-                                            Answer(answerBody, answerName, answerUid, key)
-                                        answerArrayList.add(answer)
-                                    }
-                                }
-
-                                val question = Question(
-                                    title, body, name, uid, questionUid.toString(),
-                                    genre, bytes, answerArrayList
-                                )
-                                    mQuestionArrayList.add(question)
-                                    // notifyDataSetChanged()はデータセットが変更されたことを、登録されているすべてのobserverに通知する
-                                    mFAdapter.notifyDataSetChanged()
-                                    Log.d("mfavoriteEventListener", "実行完了")  // 《イベントリスナーの確認》
-
-                                    for (question in mQuestionArrayList) {
-                                        if (dataSnapshot.key.equals(question.questionUid)) {
-                                            // このアプリで変更がある可能性があるのは回答(Answer)のみ
-                                            question.answers.clear()
-                                            val answerMap = map["answers"] as Map<String, String>?
-                                            if (answerMap != null) {
-                                                for (key in answerMap.keys) {
-                                                    val temp = answerMap[key] as Map<String, String>
-                                                    val answerBody = temp["body"] ?: ""
-                                                    val answerName = temp["name"] ?: ""
-                                                    val answerUid = temp["uid"] ?: ""
-
-                                                    val answer = Answer(answerBody, answerName, answerUid, key)
-                                                    question.answers.add(answer)
-                                                }
-                                            }
-
-                                            mFAdapter.notifyDataSetChanged()
-                                        }
-                                    }
-                                }
-
-                            override fun onCancelled(p0: DatabaseError) {
-
-                            }
-                        })
-
-                    }
-
-                    // onChildChangedメソッドで要素に変化があった場合の設定(今回は質問に対して回答が投稿された時)
-                    override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {
-                        val map = dataSnapshot.value as Map<String, String>
-
-                        // 変更があったQuestionを探す
-                        for (question in mQuestionArrayList) {
-                            if (dataSnapshot.key.equals(question.questionUid)) {
-                                // このアプリで変更がある可能性があるのは回答(Answer)のみ
-                                question.answers.clear()
-                                val answerMap = map["answers"] as Map<String, String>?
-                                if (answerMap != null) {
-                                    for (key in answerMap.keys) {
-                                        val temp = answerMap[key] as Map<String, String>
-                                        val answerBody = temp["body"] ?: ""
-                                        val answerName = temp["name"] ?: ""
-                                        val answerUid = temp["uid"] ?: ""
-
-                                        val answer = Answer(answerBody, answerName, answerUid, key)
-                                        question.answers.add(answer)
-                                    }
-                                }
-
-                                mFAdapter.notifyDataSetChanged()
-                            }
-                        }
-
-                    }
-                    // 要素が削除された時(今回はお気に入りが削除された時)に呼ばれる
-                    override fun onChildRemoved(p0: DataSnapshot) {
-
-                    }
-
-                    override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-
-                    }
-
-                    override fun onCancelled(p0: DatabaseError) {
-
-                    }
-                })
-
                 // タイトルの設定
                 title = "お気に入り一覧"
 
@@ -270,6 +144,7 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                 mFAdapter.setQuestionArrayList(mQuestionArrayList)
                 mListView.adapter = mFAdapter
                 mFAdapter.notifyDataSetChanged()
+                Log.i("Favorite,onCreate", "mQuestionArrayList = " + mQuestionArrayList)
                 // - - - ↑ お気に入り一覧画面に付随した記述 ↑- - -
 
 
@@ -294,6 +169,7 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
             navigationView.menu.findItem(R.id.nav_favorite).setVisible(false)
         }
 
+        Log.i("Favorite,onResume", "mQuestionArrayList = " + mQuestionArrayList)
         mQuestionArrayList.clear()
 
         mDatabaseReference = FirebaseDatabase.getInstance().reference     // DatabaseReferenceを組み立てる
@@ -345,7 +221,7 @@ class FavoriteListActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                         mQuestionArrayList.add(question)
                         // notifyDataSetChanged()はデータセットが変更されたことを、登録されているすべてのobserverに通知する
                         mFAdapter.notifyDataSetChanged()
-                        Log.d("mfavoriteEventListener", "実行完了")  // 《イベントリスナーの確認》
+                        Log.i("●Favorite,onResume", "mQuestionArrayList = " + mQuestionArrayList)
 
                         for (question in mQuestionArrayList) {
                             if (dataSnapshot.key.equals(question.questionUid)) {
